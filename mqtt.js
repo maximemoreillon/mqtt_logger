@@ -41,7 +41,7 @@ const message_handler = async (topic, messageBuffer) => {
 
     await writeApi.flush()
 
-    console.log(`Points created`)
+    console.log(`[InfluxDB] Points created`)
 
 
   }
