@@ -54,7 +54,7 @@ exports.read_points = async (req, res) => {
     // Run the query
     const result = await influx_read(query)
 
-    console.log(`[InfluxDB] Measurements of ${measurement} queried`)
+    console.log(`[InfluxDB] Points of ${measurement} queried`)
 
     // Respond to client
     res.send(result)
