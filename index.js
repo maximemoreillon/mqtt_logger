@@ -2,8 +2,19 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 const {version, author} = require('./package.json')
-const {db: mongodb_db, url: mongodb_url} = require('./mongodb.js')
-const {url: mqtt_url} = require('./mqtt.js')
+const {
+  connect: db_connect,
+  db: mongodb_db,
+  url: mongodb_url
+} = require('./mongodb.js')
+const {
+  url: influxdb_url,
+} = require('./influxdb.js')
+const {
+  client: mqtt_client,
+  url: mqtt_url,
+  subscribe_all,
+} = require('./mqtt.js')
 
 dotenv.config()
 
@@ -11,6 +22,11 @@ const {
   APP_PORT = 80,
 } = process.env
 
+
+db_connect()
+.then( () => {
+  subscribe_all()
+})
 
 const app = express()
 app.use(express.json())
@@ -24,6 +40,9 @@ app.get('/', (req, res) => {
     mongodb: {
       url: mongodb_url,
       db: mongodb_db,
+    },
+    influxdb: {
+      url: influxdb_url,
     },
     mqtt:{
       url: mqtt_url
