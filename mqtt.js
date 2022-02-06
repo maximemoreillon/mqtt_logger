@@ -1,15 +1,8 @@
 const mqtt = require('mqtt')
 const dotenv = require('dotenv')
 const Source = require('./models/source.js')
+const axios = require('axios')
 
-const { Point } = require('@influxdata/influxdb-client')
-const {
-  org,
-  bucket,
-  writeApi,
-  influx_read,
-  deleteApi
-} = require('./influxdb.js')
 
 dotenv.config()
 
@@ -31,23 +24,28 @@ const message_handler = async (topic, messageBuffer) => {
     const messageString = messageBuffer.toString()
     const messageJson = JSON.parse(messageString)
     const sources = await Source.find({topic})
-    sources.forEach((source) => {
+
+    sources.forEach( async (source) => {
       const {json_key, _id: measurement} = source
-      const value = messageJson[json_key]
-      const point = new Point(measurement)
-      point.floatField(json_key, value)
-      writeApi.writePoint(point)
+      const value = parseFloat(messageJson[json_key])
+
+      const url = `${process.env.INFLUXDB_CRUD_REST_API_URL}/measurements/${measurement}`
+
+      // Most likely a nicer way to write that
+      const body = {}
+      body[json_key] = value
+
+      const {data} = await axios.post(url, body)
+
+      console.log(`[InfluxDB] Created point in measurement ${measurement}`);
+
     })
-
-    await writeApi.flush()
-
-    console.log(`[InfluxDB] Points created`)
-
 
   }
   catch (e) {
     console.log(e);
   }
+  
 }
 
 exports.subscribe_all = async () => {

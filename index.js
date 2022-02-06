@@ -8,9 +8,6 @@ const {
   url: mongodb_url
 } = require('./mongodb.js')
 const {
-  url: influxdb_url,
-} = require('./influxdb.js')
-const {
   client: mqtt_client,
   url: mqtt_url,
   subscribe_all,
@@ -20,6 +17,7 @@ dotenv.config()
 
 const {
   APP_PORT = 80,
+  INFLUXDB_CRUD_REST_API_URL
 } = process.env
 
 
@@ -41,9 +39,7 @@ app.get('/', (req, res) => {
       url: mongodb_url,
       db: mongodb_db,
     },
-    influxdb: {
-      url: influxdb_url,
-    },
+    influxdb_crud_rest_api_url: INFLUXDB_CRUD_REST_API_URL,
     mqtt:{
       url: mqtt_url
     }
