@@ -1,7 +1,6 @@
-const {error_handling} = require('../utils.js')
 const axios = require('axios')
 
-exports.read_points = async (req, res) => {
+exports.read_points = async (req, res, next) => {
 
   try {
     // measurement name from query parameters
@@ -16,6 +15,6 @@ exports.read_points = async (req, res) => {
 
   }
   catch (error) {
-    error_handling(error,res)
+    next(error)
   }
 }

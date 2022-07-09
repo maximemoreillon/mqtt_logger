@@ -41,12 +41,24 @@ app.get('/', (req, res) => {
     },
     influxdb_crud_rest_api_url: INFLUXDB_CRUD_REST_API_URL,
     mqtt:{
-      url: mqtt_url
+      url: mqtt_url,
+      connected: mqtt_client.connected
     }
   })
 })
 
 app.use('/sources', require('./routes/sources.js'))
+
+app.use((error, req, res, next) => {
+  // Express error handling
+  console.error(error)
+  let { statusCode = 500, message = error } = error
+  if (isNaN(statusCode) || statusCode > 600) statusCode = 500
+  res.status(statusCode).send(message)
+
+})
+
+
 
 
 app.listen(APP_PORT, () => {

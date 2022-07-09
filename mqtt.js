@@ -22,7 +22,16 @@ const message_handler = async (topic, messageBuffer) => {
 
   try {
     const messageString = messageBuffer.toString()
-    const messageJson = JSON.parse(messageString)
+
+    let messageJson
+    try {
+      messageJson = JSON.parse(messageString)
+    }
+    catch (error) {
+      console.log(`Message ${messageString} cannot be parsed as JSON`)
+      return 
+    }
+    
     const sources = await Source.find({topic})
 
     sources.forEach( async (source) => {
@@ -31,11 +40,9 @@ const message_handler = async (topic, messageBuffer) => {
 
       const url = `${process.env.INFLUXDB_CRUD_REST_API_URL}/measurements/${measurement}`
 
-      // Most likely a nicer way to write that
-      const body = {}
-      body[json_key] = value
+      const body = { [json_key]: value}
 
-      const {data} = await axios.post(url, body)
+      await axios.post(url, body)
 
       console.log(`[InfluxDB] Created point in measurement ${measurement}`);
 
@@ -52,8 +59,8 @@ exports.subscribe_all = async () => {
   const sources = await Source.find({})
   sources.forEach(({topic}) => {
     if(!topic || topic === '') return
+    console.log(`[MQTT] subscribing to ${topic}`)
     client.subscribe(topic)
-
   })
 }
 
@@ -70,3 +77,4 @@ client.on('message', message_handler )
 
 exports.url = MQTT_URL
 exports.client = client
+
