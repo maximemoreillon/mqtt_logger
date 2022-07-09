@@ -1,4 +1,5 @@
 const Source = require('../models/source.js')
+const { subscribe_all } = require('../mqtt')
 
 exports.create_source = async (req, res, next) => {
   const properties = req.body
@@ -25,6 +26,7 @@ exports.update_source = async (req, res, next) => {
     const properties = req.body
     const result = await Source.findOneAndUpdate({_id}, properties)
     console.log(`Source ${_id} updated`)
+    subscribe_all()
     res.send(result)
   }
   catch (error) {

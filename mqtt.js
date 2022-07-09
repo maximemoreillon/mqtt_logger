@@ -36,16 +36,22 @@ const message_handler = async (topic, messageBuffer) => {
     const sources = await Source.find({topic})
 
     sources.forEach( async (source) => {
-      const {json_key, _id: measurement} = source
+
+      const {
+        json_key, 
+        _id: measurement_id, 
+        name: measurement_name
+      } = source
+
       const value = parseFloat(messageJson[json_key])
 
-      const url = `${TIME_SERIES_STORAGE_API_URL}/measurements/${measurement}`
+      const url = `${TIME_SERIES_STORAGE_API_URL}/measurements/${measurement_id}`
 
       const body = { [json_key]: value}
 
       await axios.post(url, body)
 
-      console.log(`[InfluxDB] Created point in measurement ${measurement}`);
+      console.log(`[InfluxDB] Created point "${json_key} = ${value}" in measurement "${measurement_name}" (ID ${measurement_id})`);
 
     })
 
