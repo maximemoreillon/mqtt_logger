@@ -7,6 +7,7 @@ const { Schema, model } = require('mongoose')
    user_id: String,
    topic: String,
    json_key: String,
+   keys: {type: [String], default: []},
 
  })
 

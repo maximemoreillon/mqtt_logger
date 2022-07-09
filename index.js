@@ -9,6 +9,10 @@ const {
   url: mongodb_url
 } = require('./mongodb.js')
 const {
+  bucket: influxdb_bucket,
+  url: influxdb_url
+} = require('./influxdb.js')
+const {
   client: mqtt_client,
   url: mqtt_url,
   subscribe_all,
@@ -37,11 +41,17 @@ app.get('/', (req, res) => {
     application_name: 'MQTT logger',
     author,
     version,
-    mongodb: {
-      url: mongodb_url,
-      db: mongodb_db,
+    databases: {
+      mongodb: {
+        url: mongodb_url,
+        db: mongodb_db,
+      },
+      influxdb: {
+        url: influxdb_bucket,
+        bucket: influxdb_bucket
+      }
     },
-    time_series_storage: TIME_SERIES_STORAGE_API_URL || 'undefined',
+  
     mqtt:{
       url: mqtt_url,
       connected: mqtt_client.connected

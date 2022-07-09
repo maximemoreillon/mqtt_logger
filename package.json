@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.22.0",
-    "@influxdata/influxdb-client-apis": "^1.22.0",
+    "@influxdata/influxdb-client": "^1.27.0",
+    "@influxdata/influxdb-client-apis": "^1.27.0",
     "@moreillon/express_identification_middleware": "^1.1.0",
     "axios": "^0.25.0",
     "cors": "^2.8.5",
