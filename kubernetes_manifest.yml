@@ -18,8 +18,8 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: TIME_SERIES_STORAGE_API_URL
-          value: http://time-series-storage
+        - name: INFLUXDB_BUCKET
+          value: mqtt_logger
         envFrom:
         - secretRef:
            name: environment-variables
