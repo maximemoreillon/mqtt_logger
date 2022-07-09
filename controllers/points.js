@@ -127,3 +127,31 @@ exports.create_point = async (source, data) => {
   }
 
 }
+
+exports.delete_measurement = async (source) => {
+
+  // Delete one whole measurement in the InfluxDB bucket
+
+  try {
+
+    const { _id: measurement } = source
+
+    const stop = new Date()
+    const start = new Date(0)
+
+    await deleteApi.postDelete({
+      org,
+      bucket,
+      body: {
+        start: start.toISOString(),
+        stop: stop.toISOString(),
+        predicate: `_measurement="${measurement}"`,
+      },
+    })
+
+    console.log(`Measurement ${measurement} deleted`)
+  }
+  catch (error) {
+    next(error)
+  }
+}

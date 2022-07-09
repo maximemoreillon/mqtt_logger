@@ -1,5 +1,6 @@
 const Source = require('../models/source.js')
 const { subscribe_all } = require('../mqtt')
+const { delete_measurement } = require('./points')
 
 exports.create_source = async (req, res, next) => {
   const properties = req.body
@@ -25,6 +26,7 @@ exports.update_source = async (req, res, next) => {
     const {_id} = req.params
     const properties = req.body
     const result = await Source.findOneAndUpdate({_id}, properties)
+    
     console.log(`Source ${_id} updated`)
     subscribe_all()
     res.send(result)
@@ -38,6 +40,7 @@ exports.delete_source = async (req, res, next) => {
   try {
     const {_id} = req.params
     const result = await Source.findOneAndDelete({_id})
+    await delete_measurement({ _id })
     console.log(`Source ${_id} deleted`)
     res.send(result)
   }
