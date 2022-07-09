@@ -10,6 +10,7 @@ const {
   MQTT_URL,
   MQTT_USERNAME,
   MQTT_PASSWORD,
+  TIME_SERIES_STORAGE_API_URL
 } = process.env
 
 const mqtt_options = {
@@ -38,7 +39,7 @@ const message_handler = async (topic, messageBuffer) => {
       const {json_key, _id: measurement} = source
       const value = parseFloat(messageJson[json_key])
 
-      const url = `${process.env.INFLUXDB_CRUD_REST_API_URL}/measurements/${measurement}`
+      const url = `${TIME_SERIES_STORAGE_API_URL}/measurements/${measurement}`
 
       const body = { [json_key]: value}
 

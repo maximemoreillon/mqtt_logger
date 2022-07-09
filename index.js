@@ -17,7 +17,7 @@ dotenv.config()
 
 const {
   APP_PORT = 80,
-  INFLUXDB_CRUD_REST_API_URL
+  TIME_SERIES_STORAGE_API_URL
 } = process.env
 
 
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
       url: mongodb_url,
       db: mongodb_db,
     },
-    influxdb_crud_rest_api_url: INFLUXDB_CRUD_REST_API_URL,
+    time_series_storage: TIME_SERIES_STORAGE_API_URL || 'undefined',
     mqtt:{
       url: mqtt_url,
       connected: mqtt_client.connected
