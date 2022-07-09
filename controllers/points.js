@@ -15,9 +15,7 @@ exports.read_points = async (req, res, next) => {
 
     console.log(`[InfluxDB] Points of ${measurement} queried`)
 
-    // Respond to client
     res.send(data)
-
   }
   catch (error) {
     next(error)
