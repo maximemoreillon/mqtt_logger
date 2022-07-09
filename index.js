@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
+const auth = require('@moreillon/express_identification_middleware')
 const {version, author} = require('./package.json')
 const {
   connect: db_connect,
@@ -17,7 +18,8 @@ dotenv.config()
 
 const {
   APP_PORT = 80,
-  TIME_SERIES_STORAGE_API_URL
+  TIME_SERIES_STORAGE_API_URL,
+  IDENTIFICATION_URL
 } = process.env
 
 
@@ -43,9 +45,18 @@ app.get('/', (req, res) => {
     mqtt:{
       url: mqtt_url,
       connected: mqtt_client.connected
+    },
+    auth: {
+      identification_url: IDENTIFICATION_URL || 'Unset'
     }
   })
 })
+
+
+if (IDENTIFICATION_URL){
+  const auth_options = { url: IDENTIFICATION_URL }
+  auth(auth_options)
+}
 
 app.use('/sources', require('./routes/sources.js'))
 
