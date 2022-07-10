@@ -2,7 +2,9 @@ const { Point } = require('@influxdata/influxdb-client')
 const {
   bucket,
   writeApi,
+  deleteApi,
   influx_read,
+  org,
 } = require('../influxdb')
 
 exports.read_points = async (req, res, next) => {
@@ -11,8 +13,6 @@ exports.read_points = async (req, res, next) => {
     // measurement name from query parameters
 
     const { _id: measurement } = req.params
-
-    console.log(measurement)
 
     // Filters
     // Using let because some variable types might change
@@ -73,7 +73,7 @@ exports.read_points = async (req, res, next) => {
     // Respond to client
     res.send(points)
 
-    console.log(`Measurements of ${measurement} queried`)
+    console.log(`[InfluxDB] Measurements of ${measurement} queried`)
   }
   catch (error) {
     next(error)
@@ -132,26 +132,21 @@ exports.delete_measurement = async (source) => {
 
   // Delete one whole measurement in the InfluxDB bucket
 
-  try {
+  const { _id: measurement } = source
 
-    const { _id: measurement } = source
+  const stop = new Date()
+  const start = new Date(0)
 
-    const stop = new Date()
-    const start = new Date(0)
+  await deleteApi.postDelete({
+    org,
+    bucket,
+    body: {
+      start: start.toISOString(),
+      stop: stop.toISOString(),
+      predicate: `_measurement="${measurement}"`,
+    },
+  })
 
-    await deleteApi.postDelete({
-      org,
-      bucket,
-      body: {
-        start: start.toISOString(),
-        stop: stop.toISOString(),
-        predicate: `_measurement="${measurement}"`,
-      },
-    })
+  console.log(`[InfluxDB] Measurement ${measurement} deleted`)
 
-    console.log(`Measurement ${measurement} deleted`)
-  }
-  catch (error) {
-    next(error)
-  }
 }

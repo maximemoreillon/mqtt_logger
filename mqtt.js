@@ -10,7 +10,6 @@ const {
   MQTT_URL,
   MQTT_USERNAME,
   MQTT_PASSWORD,
-  TIME_SERIES_STORAGE_API_URL
 } = process.env
 
 const mqtt_options = {
@@ -29,22 +28,19 @@ const message_handler = async (topic, messageBuffer) => {
       messageJson = JSON.parse(messageString)
     }
     catch (error) {
-      console.log(`Message ${messageString} cannot be parsed as JSON`)
+      console.log(`[MQTT] Message ${messageString} cannot be parsed as JSON`)
       return 
     }
     
     const sources = await Source.find({topic})
 
     sources.forEach( async (source) => {
-
       await create_point(source, messageJson)
-
-
     })
 
   }
-  catch (e) {
-    console.log(e);
+  catch (error) {
+    console.log(error)
   }
   
 }
@@ -56,6 +52,13 @@ exports.subscribe_all = async () => {
     console.log(`[MQTT] subscribing to ${topic}`)
     client.subscribe(topic)
   })
+}
+
+exports.subscribe_single = async (source) => {
+  const {topic} = source
+  if (!topic || topic === '') return
+  console.log(`[MQTT] subscribing to ${topic}`)
+  client.subscribe(topic)
 }
 
 
