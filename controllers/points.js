@@ -101,9 +101,11 @@ exports.create_point = async (source, data) => {
 
     for (const field of fields) {
       const value = data[field]
-      
-      // Currently only float type supported
-      if (value) point.floatField(field, parseFloat(value))
+
+      if (value) {
+        if (!isNaN(parseFloat(value))) point.floatField(field, parseFloat(value) )
+        else point.stringField(field, value)
+      }
  
     }
 
