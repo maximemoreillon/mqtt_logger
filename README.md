@@ -5,6 +5,17 @@ An article about this project is available [here](https://articles.maximemoreill
 
 [![dockeri.co](https://dockeri.co/image/moreillon/mqtt-logger)](https://hub.docker.com/r/moreillon/mqtt-logger)
 
+## API
+| Endpoint | Method | query/body | Description |
+| --- | --- | --- | --- |
+| /sources | GET | - | Returns list of sources |
+| /sources | POST | name | Create a new source |
+| /sources/:source_id | GET | - | Returns the source identified by ID :source_id |
+| /sources/:source_id | PATCH | - | Updates the source identified by ID :source_id |
+| /sources/:source_id | DELETE | - | Deletes the source identified by ID :source_id |
+| /sources/:source_id/points | GET | - | Returns points of source identified by ID :source_id |
+
+
 ## Environment variables
 | Variable | Description |
 | --- | --- |
@@ -17,3 +28,6 @@ An article about this project is available [here](https://articles.maximemoreill
 | INFLUXDB_ORG | Organization used in InfluxDB | 
 | INFLUXDB_BUCKET | Bucket used in InfluxDB | 
 | INFLUXDB_TOKEN | Token used to access InfluxDB | 
+| IDENTIFICATION_URL | URL for user identification (Optional) |
+
+Note: Authentication is enables if IDENTIFICATION_URL is set
