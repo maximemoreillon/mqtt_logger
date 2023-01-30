@@ -20,6 +20,7 @@ console.log(`MQTT Logger v${version}`)
 
 const { APP_PORT = 80, IDENTIFICATION_URL } = process.env
 
+// Note: MQTT connects in db_connect
 db_connect()
 
 const app = express()
