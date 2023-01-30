@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Maxime Moreillon",
+  "license": "MIT",
   "dependencies": {
     "@influxdata/influxdb-client": "^1.27.0",
     "@influxdata/influxdb-client-apis": "^1.27.0",
