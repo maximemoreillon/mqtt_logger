@@ -10,7 +10,6 @@ const {
 } = require("./mongodb.js")
 const { bucket: influxdb_bucket, url: influxdb_url } = require("./influxdb.js")
 const {
-  connect: mqtt_connect,
   getConnected: getMqttClientConnected,
   url: mqtt_url,
 } = require("./mqtt.js")
@@ -21,9 +20,7 @@ console.log(`MQTT Logger v${version}`)
 
 const { APP_PORT = 80, IDENTIFICATION_URL } = process.env
 
-db_connect().then(() => {
-  mqtt_connect()
-})
+db_connect()
 
 const app = express()
 app.use(express.json())
@@ -40,7 +37,7 @@ app.get("/", (req, res) => {
         db: mongodb_db,
       },
       influxdb: {
-        url: influxdb_bucket,
+        url: influxdb_url,
         bucket: influxdb_bucket,
       },
     },
