@@ -79,7 +79,7 @@ exports.create_point = async (source, data) => {
   // Note: Not an express controller
 
   try {
-    const { _id: measurement, keys, name, topic } = source
+    const { _id: measurement, keys, name, topic, tags } = source
 
     const point = new Point(measurement)
 
@@ -101,9 +101,10 @@ exports.create_point = async (source, data) => {
       return
     }
 
-    // Tags: topic and source name
+    // Tags: topic and source name by default
     point.tag("name", name)
     point.tag("topic", topic)
+    tags.forEach(({ key, value }) => point.tag(key, value))
 
     // write (flush hereunder is to actually perform the operation)
     writeApi.writePoint(point)
