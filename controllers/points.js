@@ -79,7 +79,7 @@ exports.create_point = async (source, data) => {
   // Note: Not an express controller
 
   try {
-    const { _id: measurement, keys } = source
+    const { _id: measurement, keys, name, topic } = source
 
     const point = new Point(measurement)
 
@@ -100,6 +100,10 @@ exports.create_point = async (source, data) => {
       console.log(`[InfluxDB] No field to get from point ${point}, skipping`)
       return
     }
+
+    // Tags: topic and source name
+    point.tag("name", name)
+    point.tag("topic", topic)
 
     // write (flush hereunder is to actually perform the operation)
     writeApi.writePoint(point)
