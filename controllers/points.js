@@ -50,15 +50,11 @@ exports.read_points = async (req, res, next) => {
     // Getting point count to compute the sampling from the limit
     const count_query = query + `|> count()`
     const record_count_query_result = await influx_read(count_query)
-
-    // dirty
-    if (!record_count_query_result.length) return res.send([])
-
-    const record_count = record_count_query_result[0]._value // Dirty here
-    const sampling = Math.max(Math.round(record_count / Number(limit)), 1) // Not sure why 12
-
-    // Apply subsampling
-    query += `|> sample(n:${sampling}, pos: 0)`
+    const record_count = record_count_query_result[0]?._value // Dirty here
+    if (record_count) {
+      const sampling = Math.max(Math.round(record_count / Number(limit)), 1)
+      query += `|> sample(n:${sampling}, pos: 0)`
+    }
 
     // Run the query
     const points = await influx_read(query)
