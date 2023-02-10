@@ -39,7 +39,7 @@ const message_handler = async (topic, messageBuffer) => {
 const subscribe_all = async () => {
   const sources = await Source.find({})
   sources.forEach(({ topic }) => {
-    if (!topic || topic === "") return
+    if (!topic) return
     console.log(`[MQTT] subscribing to ${topic}`)
     client.subscribe(topic)
   })
@@ -47,7 +47,7 @@ const subscribe_all = async () => {
 
 exports.subscribe_single = async (source) => {
   const { topic } = source
-  if (!topic || topic === "") return
+  if (!topic) return
   console.log(`[MQTT] subscribing to ${topic}`)
   client.subscribe(topic)
 }
@@ -64,6 +64,7 @@ const connect = () =>
 
       subscribe_all()
       client.on("message", message_handler)
+      resolve()
     })
 
     client.on("error", () => {
