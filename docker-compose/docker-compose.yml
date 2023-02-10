@@ -1,0 +1,80 @@
+version: "3.7"
+
+# TODO: volumes
+
+services:
+  mosquitto:
+    logging:
+      driver: none
+    image: eclipse-mosquitto
+    volumes:
+      - ./mosquitto/config:/mosquitto/config/
+    networks:
+      - mqtt-logger
+    ports:
+      - 1883:1883
+
+  influxdb:
+    image: influxdb:2.6
+    logging:
+      driver: none
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: keyboardcat
+      DOCKER_INFLUXDB_INIT_ORG: mqtt_logger
+      DOCKER_INFLUXDB_INIT_BUCKET: mqtt_logger
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: 5Qlnkzp3kW6RDVMHlktMzDCQEG5CBGHf59J-5x5lK2g9BVCtoYdgrI9aqnYi5fNIB0EfJoUDQ0bWHkGqkr5qRA==
+
+    ports:
+      - 8086:8086
+    networks:
+      - mqtt-logger
+
+  mongodb:
+    image: mongo:4
+    logging:
+      driver: none
+    networks:
+      - mqtt-logger
+
+  mqtt-logger:
+    image: moreillon/mqtt-logger
+    environment:
+      # InfluxDB
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: 5Qlnkzp3kW6RDVMHlktMzDCQEG5CBGHf59J-5x5lK2g9BVCtoYdgrI9aqnYi5fNIB0EfJoUDQ0bWHkGqkr5qRA==
+      INFLUXDB_ORG: mqtt_logger
+      INFLUXDB_BUCKET: mqtt_logger
+      # MongoDB
+      MONGODB_URL: mongodb://mongodb
+      MONGODB_DB: mqtt_logger
+      # MQTT
+      MQTT_URL: mqtt://mosquitto:1883
+
+    networks:
+      - mqtt-logger
+    ports:
+      - 7070:80
+
+  gui:
+    image: moreillon/mqtt-logger-front:50030b8b
+    logging:
+      driver: none
+    environment:
+      VUE_APP_MQTT_LOGGER_API_URL: /proxy/api
+    networks:
+      - mqtt-logger
+
+  proxy:
+    image: moreillon/api-proxy:e80c1d87
+    environment:
+      PROXY_API: http://mqtt-logger
+      PROXY_ROOT: http://gui
+    ports:
+      - 8080:80
+    networks:
+      - mqtt-logger
+
+networks:
+  mqtt-logger:
