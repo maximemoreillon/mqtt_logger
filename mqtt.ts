@@ -1,11 +1,15 @@
-const mqtt = require("mqtt")
-const dotenv = require("dotenv")
-const Source = require("./models/source.js")
-const { create_point } = require("./controllers/points")
+import mqtt, { MqttClient } from "mqtt"
+import dotenv from "dotenv"
+import { Source, ISource } from "./models/source"
+import { create_point } from "./controllers/points"
 
 dotenv.config()
 
-const { MQTT_URL, MQTT_USERNAME, MQTT_PASSWORD } = process.env
+const {
+  MQTT_URL = "mqtt://localhost:1883",
+  MQTT_USERNAME,
+  MQTT_PASSWORD,
+} = process.env
 
 const mqtt_options = {
   username: MQTT_USERNAME,
@@ -14,11 +18,11 @@ const mqtt_options = {
   resubscribe: true, // Defaults to true
 }
 
-const message_handler = async (topic, messageBuffer) => {
+const message_handler = async (topic: string, messageBuffer: Buffer) => {
   try {
     const messageString = messageBuffer.toString()
 
-    let messageJson
+    let messageJson: object
     try {
       messageJson = JSON.parse(messageString)
     } catch (error) {
@@ -36,7 +40,9 @@ const message_handler = async (topic, messageBuffer) => {
   }
 }
 
-const subscribe_all = async () => {
+let client: MqttClient
+
+export const subscribe_all = async () => {
   const sources = await Source.find({})
   sources.forEach(({ topic }) => {
     if (!topic) return
@@ -45,16 +51,15 @@ const subscribe_all = async () => {
   })
 }
 
-exports.subscribe_single = async (source) => {
+// TODO: make interface for source
+export const subscribe_single = async (source: any) => {
   const { topic } = source
   if (!topic) return
   console.log(`[MQTT] subscribing to ${topic}`)
   client.subscribe(topic)
 }
 
-let client
-
-const connect = () =>
+export const connect = () =>
   new Promise((resolve, reject) => {
     console.log(`[MQTT] Connecting to ${MQTT_URL}...`)
     client = mqtt.connect(MQTT_URL, mqtt_options)
@@ -64,7 +69,7 @@ const connect = () =>
 
       subscribe_all()
       client.on("message", message_handler)
-      resolve()
+      resolve(client)
     })
 
     client.on("error", () => {
@@ -72,7 +77,5 @@ const connect = () =>
     })
   })
 
-exports.url = MQTT_URL
-exports.getConnected = () => client?.connected
-exports.subscribe_all = subscribe_all
-exports.connect = connect
+export const url = MQTT_URL
+export const getConnected = () => client?.connected

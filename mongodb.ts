@@ -1,22 +1,17 @@
-const mongoose = require("mongoose")
-const dotenv = require("dotenv")
-const { connect: mqtt_connect } = require("./mqtt.js")
+import mongoose from "mongoose"
+import dotenv from "dotenv"
+import { connect as mqtt_connect } from "./mqtt"
 
 dotenv.config()
 
 const { MONGODB_URL = "mongodb://mongo", MONGODB_DB = "mqtt_logger" } =
   process.env
 
-const mongodb_options = {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-}
-
 const connection_url = `${MONGODB_URL}/${MONGODB_DB}`
 
-const connect = () => {
+export const connect = () => {
   mongoose
-    .connect(connection_url, mongodb_options)
+    .connect(connection_url)
     .then(() => {
       console.log("[Mongoose] Initial connection successful")
       mqtt_connect()
@@ -27,6 +22,5 @@ const connect = () => {
     })
 }
 
-exports.connect = connect
-exports.url = MONGODB_URL
-exports.db = MONGODB_DB
+export const url = MONGODB_URL
+export const db = MONGODB_DB

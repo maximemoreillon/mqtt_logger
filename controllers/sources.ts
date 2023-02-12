@@ -1,8 +1,13 @@
-const Source = require("../models/source.js")
-const { subscribe_single } = require("../mqtt")
-const { delete_measurement } = require("./points")
+import { Source } from "../models/source"
+import { subscribe_single } from "../mqtt"
+import { delete_measurement } from "./points"
+import { Request, Response, NextFunction } from "express"
 
-exports.create_source = async (req, res, next) => {
+export const create_source = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const properties = req.body
     const source = await Source.create(properties)
@@ -13,11 +18,22 @@ exports.create_source = async (req, res, next) => {
   }
 }
 
-exports.get_sources = async (req, res, next) => {
+export const get_sources = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { skip = 0, limit = 50, order = -1, sort = "_id", search } = req.query
+    // TODO: find type of query
+    const {
+      skip = 0,
+      limit = 50,
+      order = -1,
+      sort = "_id",
+      search,
+    } = req.query as any
 
-    const query = {}
+    const query: any = {}
 
     if (search) {
       const regex = { $regex: search, $options: "i" }
@@ -37,7 +53,11 @@ exports.get_sources = async (req, res, next) => {
   }
 }
 
-exports.get_source = async (req, res, next) => {
+export const get_source = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { _id } = req.params
     const source = await Source.findOne({ _id })
@@ -47,7 +67,11 @@ exports.get_source = async (req, res, next) => {
   }
 }
 
-exports.update_source = async (req, res, next) => {
+export const update_source = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { _id } = req.params
     const properties = req.body
@@ -63,11 +87,15 @@ exports.update_source = async (req, res, next) => {
   }
 }
 
-exports.delete_source = async (req, res, next) => {
+export const delete_source = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { _id } = req.params
     const result = await Source.findOneAndDelete({ _id })
-    await delete_measurement({ _id })
+    await delete_measurement(_id)
     console.log(`[MongoDB] Source ${_id} deleted`)
     res.send(result)
   } catch (error) {

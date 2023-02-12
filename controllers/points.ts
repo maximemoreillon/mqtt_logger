@@ -1,7 +1,13 @@
-const { Point } = require("@influxdata/influxdb-client")
-const { bucket, writeApi, deleteApi, influx_read, org } = require("../influxdb")
+import { Point } from "@influxdata/influxdb-client"
+import { bucket, writeApi, deleteApi, influx_read, org } from "../influxdb"
+import { Request, Response, NextFunction } from "express"
+import { ISource } from "../models/source"
 
-exports.read_points = async (req, res, next) => {
+export const read_points = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // measurement name from query parameters
 
@@ -9,7 +15,7 @@ exports.read_points = async (req, res, next) => {
 
     // Filters
     // Using let because some variable types might change
-    let {
+    const {
       start = "0", // by default, query all points
       stop,
       tags = [],
@@ -20,8 +26,9 @@ exports.read_points = async (req, res, next) => {
     const stop_query = stop ? `stop: ${stop}` : ""
 
     // If only one tag provided, will be parsed as string so put it in an array
-    if (typeof tags === "string") tags = [tags]
-    if (typeof fields === "string") fields = [fields]
+    const tagArray = typeof tags === "string" ? [tags] : (tags as string[])
+    const fieldArray =
+      typeof fields === "string" ? [fields] : (fields as string[])
 
     // NOTE: check for risks of injection
     let query = `
@@ -32,14 +39,14 @@ exports.read_points = async (req, res, next) => {
 
     //Adding fields to filter if provided in the query
     if (fields.length) {
-      const fields_joined = fields
-        .map((f) => `r["_field"] == "${f}"`)
+      const fields_joined = fieldArray
+        .map((f: string) => `r["_field"] == "${f}"`)
         .join(" or ")
       query += `|> filter(fn: (r) => ${fields_joined})`
     }
 
     //Adding tags to filter if provided in the query
-    tags.forEach((tag) => {
+    tagArray.forEach((tag: string) => {
       const tag_split = tag.split(":")
       query += `
       |> filter(fn: (r) => r["${tag_split[0]}"] == "${tag_split[1]}")
@@ -49,7 +56,8 @@ exports.read_points = async (req, res, next) => {
     // subsampling
     // Getting point count to compute the sampling from the limit
     const count_query = query + `|> count()`
-    const record_count_query_result = await influx_read(count_query)
+    // TODO: fidn type
+    const record_count_query_result: any = await influx_read(count_query)
     const record_count = record_count_query_result[0]?._value // Dirty here
     if (record_count) {
       const sampling = Math.max(Math.round(record_count / Number(limit)), 1)
@@ -75,7 +83,7 @@ exports.read_points = async (req, res, next) => {
   }
 }
 
-exports.create_point = async (source, data) => {
+export const create_point = async (source: ISource, data: any) => {
   // Note: Not an express controller
 
   try {
@@ -119,10 +127,8 @@ exports.create_point = async (source, data) => {
   }
 }
 
-exports.delete_measurement = async (source) => {
+export const delete_measurement = async (measurementId: string) => {
   // Delete one whole measurement in the InfluxDB bucket
-
-  const { _id: measurement } = source
 
   const stop = new Date()
   const start = new Date(0)
@@ -133,9 +139,9 @@ exports.delete_measurement = async (source) => {
     body: {
       start: start.toISOString(),
       stop: stop.toISOString(),
-      predicate: `_measurement="${measurement}"`,
+      predicate: `_measurement="${measurementId}"`,
     },
   })
 
-  console.log(`[InfluxDB] Measurement ${measurement} deleted`)
+  console.log(`[InfluxDB] Measurement ${measurementId} deleted`)
 }
