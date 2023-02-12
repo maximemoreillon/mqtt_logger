@@ -1,19 +1,17 @@
-const express = require("express")
-const cors = require("cors")
-const dotenv = require("dotenv")
-const auth = require("@moreillon/express_identification_middleware")
-const { version, author } = require("./package.json")
-const {
-  connect: db_connect,
-  db: mongodb_db,
-  url: mongodb_url,
-} = require("./mongodb.js")
-const { bucket: influxdb_bucket, url: influxdb_url } = require("./influxdb.js")
-const {
-  getConnected: getMqttClientConnected,
-  url: mqtt_url,
-} = require("./mqtt.js")
-
+import express from "express"
+import cors from "cors"
+import dotenv from "dotenv"
+import auth from "@moreillon/express_identification_middleware"
+import { version, author } from "./package.json"
+import { Request, Response, NextFunction } from "express"
+import {
+  connect as db_connect,
+  db as mongodb_db,
+  url as mongodb_url,
+} from "./mongodb"
+import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
+import { getConnected as getMqttClientConnected, url as mqtt_url } from "./mqtt"
+import sourcesRouter from "./routes/sources"
 dotenv.config()
 
 console.log(`MQTT Logger v${version}`)
@@ -27,7 +25,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send({
     application_name: "MQTT logger",
     author,
@@ -58,9 +56,9 @@ if (IDENTIFICATION_URL) {
   auth(auth_options)
 }
 
-app.use("/sources", require("./routes/sources.js"))
+app.use("/sources", sourcesRouter)
 
-app.use((error, req, res, next) => {
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   // Express error handling
   console.error(error)
   let { statusCode = 500, message = error } = error
