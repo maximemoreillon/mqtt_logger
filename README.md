@@ -1,7 +1,7 @@
 # MQTT Logger
 
 [<img src="https://img.shields.io/docker/pulls/moreillon/mqtt-logger?logo=docker">](https://hub.docker.com/repository/docker/moreillon/mqtt-logger)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/mqtt-logger)](https://artifacthub.io/packages/search?repo=mqtt-logger)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/moreillon)](https://artifacthub.io/packages/search?repo=moreillon)
 
 Stores data sent over MQTT into an InfluxDB time series database.
 
