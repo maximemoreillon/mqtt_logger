@@ -13,16 +13,16 @@ spec:
         app: ${APPLICATION_NAME}
     spec:
       containers:
-      - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_IMAGE_TAGGED}
-        ports:
-        - containerPort: 80
-        env:
-        - name: INFLUXDB_BUCKET
-          value: mqtt_logger
-        envFrom:
-        - secretRef:
-           name: environment-variables
+        - name: ${APPLICATION_NAME}
+          image: ${CONTAINER_IMAGE_TAGGED}
+          ports:
+            - containerPort: 80
+          env:
+            - name: INFLUXDB_BUCKET
+              value: mqtt_logger
+          envFrom:
+            - secretRef:
+                name: environment-variables
 ---
 apiVersion: v1
 kind: Service
@@ -33,25 +33,27 @@ spec:
   selector:
     app: ${APPLICATION_NAME}
   ports:
-  - port: 80
+    - port: 80
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ${APPLICATION_NAME} # Name of the ingress, named after the application
+  name: ${APPLICATION_NAME}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod" # Connecting to the certificate issuer
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   tls:
-  - hosts:
-    - ${K8S_INGRESS_HOST}
-    secretName: ${APPLICATION_NAME} # Name of the secret, i.e. the certificates
+    - hosts:
+        - ${K8S_INGRESS_HOST}
+      secretName: ${APPLICATION_NAME}-tls
   rules:
-  - host: ${K8S_INGRESS_HOST}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: ${APPLICATION_NAME} # Name of the service, named after the app
-          servicePort: 80
+    - host: ${K8S_INGRESS_HOST}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APPLICATION_NAME}
+                port:
+                  number: 80

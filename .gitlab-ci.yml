@@ -12,7 +12,6 @@ image: moreillon/ci-dind
 services:
   - name: docker:19.03.12-dind
 
-
 build:
   only:
     - master
@@ -29,7 +28,6 @@ build:
     # Pushing
     - docker push ${CONTAINER_IMAGE}
     - docker push ${CONTAINER_IMAGE_TAGGED}
-
 
 deploy:
   only:
