@@ -1,4 +1,5 @@
 import express from "express"
+import "express-async-errors"
 import cors from "cors"
 import dotenv from "dotenv"
 import auth from "@moreillon/express_identification_middleware"
@@ -12,7 +13,6 @@ import {
 import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
 import { getConnected as getMqttClientConnected, url as mqtt_url } from "./mqtt"
 import sourcesRouter from "./routes/sources"
-import "express-async-errors"
 
 dotenv.config()
 
