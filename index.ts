@@ -11,7 +11,7 @@ import {
   url as mongodb_url,
 } from "./mongodb"
 import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
-import { getConnected as getMqttClientConnected, url as mqtt_url } from "./mqtt"
+import { getConnected as getMqttClientConnected, MQTT_URL } from "./mqtt"
 import sourcesRouter from "./routes/sources"
 
 dotenv.config()
@@ -20,7 +20,7 @@ console.log(`MQTT Logger v${version}`)
 
 const { APP_PORT = 80, IDENTIFICATION_URL } = process.env
 
-// Note: MQTT connects in db_connect
+// Note: MQTT connects in db_connect because also subscribes and needs access to topics for that
 db_connect()
 
 const app = express()
@@ -44,18 +44,18 @@ app.get("/", (req: Request, res: Response) => {
     },
 
     mqtt: {
-      url: mqtt_url,
+      url: MQTT_URL,
       connected: getMqttClientConnected(),
     },
     auth: {
-      identification_url: IDENTIFICATION_URL || "Unset",
+      identification_url: IDENTIFICATION_URL,
     },
   })
 })
 
 if (IDENTIFICATION_URL) {
   const auth_options = { url: IDENTIFICATION_URL }
-  auth(auth_options)
+  app.use(auth(auth_options))
 }
 
 app.use("/sources", sourcesRouter)

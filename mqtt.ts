@@ -5,7 +5,7 @@ import { create_point } from "./controllers/points"
 
 dotenv.config()
 
-const {
+export const {
   MQTT_URL = "mqtt://localhost:1883",
   MQTT_USERNAME,
   MQTT_PASSWORD,
@@ -43,16 +43,21 @@ const message_handler = async (topic: string, messageBuffer: Buffer) => {
 let client: MqttClient
 
 export const subscribe_all = async () => {
-  const sources = await Source.find({})
-  sources.forEach(({ topic }) => {
-    if (!topic) return
-    console.log(`[MQTT] subscribing to ${topic}`)
-    client.subscribe(topic)
-  })
+  // Note: requires a working MongoDB connection
+  try {
+    const sources = await Source.find({})
+    sources.forEach(({ topic }) => {
+      if (!topic) return
+      console.log(`[MQTT] subscribing to ${topic}`)
+      client.subscribe(topic)
+    })
+  } catch (error) {
+    console.error(error)
+  }
+  
 }
 
-// TODO: make interface for source
-export const subscribe_single = async (source: any) => {
+export const subscribe_single = async (source: ISource) => {
   const { topic } = source
   if (!topic) return
   console.log(`[MQTT] subscribing to ${topic}`)
@@ -77,5 +82,4 @@ export const connect = () =>
     })
   })
 
-export const url = MQTT_URL
 export const getConnected = () => client?.connected
