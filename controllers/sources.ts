@@ -2,6 +2,7 @@ import { Source } from "../models/source"
 import { subscribe_single } from "../mqtt"
 import { delete_measurement } from "./points"
 import { Request, Response } from "express"
+import createHTTPError from 'http-errors'
 
 export const create_source = async (req: Request, res: Response) => {
   const properties = req.body
@@ -49,6 +50,7 @@ export const update_source = async (req: Request, res: Response) => {
   const source = await Source.findOneAndUpdate({ _id }, properties, {
     new: true,
   })
+  if(!source) throw createHTTPError(404, `Source ${_id} not found`)
   console.log(`[MongoDB] Source ${_id} updated`)
   subscribe_single(source)
 
@@ -58,6 +60,7 @@ export const update_source = async (req: Request, res: Response) => {
 export const delete_source = async (req: Request, res: Response) => {
   const { _id } = req.params
   const result = await Source.findOneAndDelete({ _id })
+  if(!result) throw createHTTPError(404, `Source ${_id} not found`)
   await delete_measurement(_id)
   console.log(`[MongoDB] Source ${_id} deleted`)
   res.send(result)

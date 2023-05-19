@@ -13,7 +13,6 @@ import {
 import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
 import { getConnected as getMqttClientConnected, MQTT_URL } from "./mqtt"
 import sourcesRouter from "./routes/sources"
-
 dotenv.config()
 
 console.log(`MQTT Logger v${version}`)
