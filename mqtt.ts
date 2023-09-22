@@ -23,6 +23,7 @@ const message_handler = async (topic: string, messageBuffer: Buffer) => {
     const messageString = messageBuffer.toString()
 
     let messageJson: object
+
     try {
       messageJson = JSON.parse(messageString)
     } catch (error) {
@@ -54,7 +55,6 @@ export const subscribe_all = async () => {
   } catch (error) {
     console.error(error)
   }
-  
 }
 
 export const subscribe_single = async (source: ISource) => {

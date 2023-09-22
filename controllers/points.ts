@@ -25,14 +25,13 @@ export const read_points = async (req: Request, res: Response) => {
   const fieldArray =
     typeof fields === "string" ? [fields] : (fields as string[])
 
-  // NOTE: check for risks of injection
+  // TODO: check for risks of injection
   let query = `
       from(bucket:"${bucket}")
       |> range(start: ${start}, ${stop_query})
-      |> filter(fn: (r) => r._measurement == "${measurement}")
-    `
+      |> filter(fn: (r) => r._measurement == "${measurement}")`
 
-  //Adding fields to filter if provided in the query
+  // Adding fields to filter if provided in the query
   if (fields.length) {
     const fields_joined = fieldArray
       .map((f: string) => `r["_field"] == "${f}"`)
@@ -40,18 +39,15 @@ export const read_points = async (req: Request, res: Response) => {
     query += `|> filter(fn: (r) => ${fields_joined})`
   }
 
-  //Adding tags to filter if provided in the query
+  // Adding tags to filter if provided in the query
   tagArray.forEach((tag: string) => {
     const tag_split = tag.split(":")
-    query += `
-      |> filter(fn: (r) => r["${tag_split[0]}"] == "${tag_split[1]}")
-      `
+    query += `|> filter(fn: (r) => r["${tag_split[0]}"] == "${tag_split[1]}")`
   })
 
   // subsampling
   // Getting point count to compute the sampling from the limit
   const count_query = query + `|> count()`
-  // TODO: fidn type
   const record_count_query_result: any = await influx_read(count_query)
   const record_count = record_count_query_result[0]?._value // Dirty here
   if (record_count) {
@@ -59,12 +55,10 @@ export const read_points = async (req: Request, res: Response) => {
     query += `|> sample(n:${sampling}, pos: 0)`
   }
 
-  // Run the query
   const points = await influx_read(query)
 
   console.log(`[InfluxDB] Measurements of ${measurement} queried`)
 
-  // Respond to client
   res.send({
     start,
     stop,
@@ -108,10 +102,6 @@ export const create_point = async (source: ISource, data: any) => {
   writeApi.writePoint(point)
 
   await writeApi.flush()
-
-  // console.log(
-  //   `[InfluxDB] Point ${point} created in measurement ${measurement}`
-  // )
 }
 
 export const delete_measurement = async (measurementId: string) => {
