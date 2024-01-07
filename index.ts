@@ -7,8 +7,8 @@ import { version, author } from "./package.json"
 import { Request, Response, NextFunction } from "express"
 import {
   connect as db_connect,
-  db as mongodb_db,
-  url as mongodb_url,
+  redactedConnectionString as mongodbConnectionString,
+  get_connected as mongodbGetConnectionState,
 } from "./mongodb"
 import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
 import { getConnected as getMqttClientConnected, MQTT_URL } from "./mqtt"
@@ -33,8 +33,8 @@ app.get("/", (req: Request, res: Response) => {
     version,
     databases: {
       mongodb: {
-        url: mongodb_url,
-        db: mongodb_db,
+        connection_string: mongodbConnectionString,
+        connection_state: mongodbGetConnectionState(),
       },
       influxdb: {
         url: influxdb_url,
