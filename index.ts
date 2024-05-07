@@ -1,7 +1,9 @@
+import dotenv from "dotenv"
+dotenv.config()
+
 import express from "express"
 import "express-async-errors"
 import cors from "cors"
-import dotenv from "dotenv"
 import auth from "@moreillon/express_identification_middleware"
 import { version, author } from "./package.json"
 import { Request, Response, NextFunction } from "express"
@@ -13,7 +15,6 @@ import {
 import { bucket as influxdb_bucket, url as influxdb_url } from "./influxdb"
 import { getConnected as getMqttClientConnected, MQTT_URL } from "./mqtt"
 import sourcesRouter from "./routes/sources"
-dotenv.config()
 
 console.log(`MQTT Logger v${version}`)
 

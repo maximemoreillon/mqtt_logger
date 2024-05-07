@@ -1,9 +1,6 @@
 import mqtt, { MqttClient } from "mqtt"
-import dotenv from "dotenv"
 import { Source, ISource } from "./models/source"
 import { create_point } from "./controllers/points"
-
-dotenv.config()
 
 export const {
   MQTT_URL = "mqtt://localhost:1883",

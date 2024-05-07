@@ -1,4 +1,3 @@
-import dotenv from "dotenv"
 import { InfluxDB, WritePrecisionType } from "@influxdata/influxdb-client"
 import { DeleteAPI } from "@influxdata/influxdb-client-apis"
 import { Agent } from "http"
@@ -7,8 +6,6 @@ const agent = new Agent({
   keepAlive: true,
   keepAliveMsecs: 20 * 1000, // 20 seconds keep alive
 })
-
-dotenv.config()
 
 export const {
   INFLUXDB_URL: url = "http://localhost:8086",

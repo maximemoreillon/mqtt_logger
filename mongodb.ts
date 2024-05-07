@@ -1,8 +1,5 @@
 import mongoose from "mongoose"
-import dotenv from "dotenv"
 import { connect as mqtt_connect } from "./mqtt"
-
-dotenv.config()
 
 export const {
   MONGODB_CONNECTION_STRING,
