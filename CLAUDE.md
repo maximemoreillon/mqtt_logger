@@ -52,4 +52,8 @@ Auth is **not implemented**: all `/api` routes are open. When it's added, use **
 
 ## Deployment
 
-Docker image on port 3000. GitLab CI builds, pushes to Docker Hub and deploys `kubernetes_manifest.yml` **only from `master`**. The Kubernetes secret must provide `DATABASE_URL` and the MQTT variables. The GUI in `app/` is currently a placeholder page.
+The repo is on GitHub (`maximemoreillon/mqtt_logger`). The old GitLab project is scheduled for deletion; the `gitlab` remote points to it.
+
+GitHub Actions (`.github/workflows/ci.yml`) runs tests and the typecheck on every push and PR, then builds the Docker image (port 3000). It pushes `moreillon/mqtt-logger` to Docker Hub **only from `master`** (tags `latest` and the short SHA) and from `v*` tags (semver tags). This needs the repo secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`.
+
+Nothing deploys automatically. `kubernetes_manifest.yml` is applied by hand with `envsubst`, which needs `APPLICATION_NAME`, `CONTAINER_IMAGE_TAGGED` and `K8S_INGRESS_HOST`. Its `environment-variables` secret must provide `DATABASE_URL` and the MQTT variables. The GUI in `app/` is currently a placeholder page.
