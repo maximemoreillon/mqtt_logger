@@ -56,4 +56,11 @@ The repo is on GitHub (`maximemoreillon/mqtt_logger`). The old GitLab project is
 
 GitHub Actions (`.github/workflows/ci.yml`) runs tests and the typecheck on every push and PR, then builds the Docker image (port 3000). It pushes `moreillon/mqtt-logger` to Docker Hub **only from `master`** (tags `latest` and the short SHA) and from `v*` tags (semver tags). This needs the repo secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`.
 
-Nothing deploys automatically. `kubernetes_manifest.yml` is applied by hand with `envsubst`, which needs `APPLICATION_NAME`, `CONTAINER_IMAGE_TAGGED` and `K8S_INGRESS_HOST`. Its `environment-variables` secret must provide `DATABASE_URL` and the MQTT variables. The GUI in `app/` is currently a placeholder page.
+Nothing deploys automatically. `kubernetes_manifest.yml` is applied by hand with `envsubst`, which needs `APPLICATION_NAME`, `CONTAINER_IMAGE_TAGGED` and `K8S_INGRESS_HOST`. Its `environment-variables` secret must provide `DATABASE_URL` and the MQTT variables.
+
+## GUI (`app/`)
+
+The GUI uses Nuxt UI 4 and vue-echarts 8 (ECharts 6).
+- **Theme:** the primary color is a custom **Crimson** palette (owner's choice). `#DC143C` is the 500 shade, defined with `@theme static` in `app/assets/css/main.css` and selected in `app/app.config.ts`. Icons are `i-lucide-*`, bundled locally through `@iconify-json/lucide` so nothing is fetched at runtime.
+- **Shared validation:** `shared/source.ts` holds the zod source schemas and `isValidTopicFilter`. The API (`server/lib/validation.ts`, re-exported) and `SourceForm.vue` (via `#shared/source`) both use it, so change validation there.
+- **Chart:** the points request on the source page is client-only and starts in `onMounted` (`server: false, immediate: false`). "Now" differs between server and browser, and a request pending during hydration causes mismatches. `VChart` fills its parent, so size the wrapper `div`, not the chart. Don't use `grid.containLabel`, which is deprecated in ECharts 6.

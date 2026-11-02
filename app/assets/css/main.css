@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Crimson (#DC143C = 500) palette, used as Nuxt UI's primary color (app.config.ts).
+   Same lightness / chroma ladder as Tailwind's red, at crimson's hue. */
+@theme static {
+  --color-crimson-50: oklch(0.971 0.012 20.09);
+  --color-crimson-100: oklch(0.929 0.03 20.09);
+  --color-crimson-200: oklch(0.868 0.058 20.09);
+  --color-crimson-300: oklch(0.776 0.107 20.09);
+  --color-crimson-400: oklch(0.651 0.179 20.09);
+  --color-crimson-500: oklch(0.571 0.222 20.09);
+  --color-crimson-600: oklch(0.517 0.229 20.09);
+  --color-crimson-700: oklch(0.453 0.199 20.09);
+  --color-crimson-800: oklch(0.398 0.166 20.09);
+  --color-crimson-900: oklch(0.355 0.132 20.09);
+  --color-crimson-950: oklch(0.231 0.086 20.09);
+}

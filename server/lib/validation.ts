@@ -1,27 +1,10 @@
 import { z } from "zod";
-import { isValidTopicFilter } from "./ingest";
+export {
+  createSourceSchema,
+  updateSourceSchema,
+} from "../../shared/source";
 
 export const idParamsSchema = z.object({ id: z.uuid() });
-
-// No defaults here: they would be applied on PATCH too and reset fields.
-const sourceFields = z.object({
-  name: z.string().trim().min(1),
-  description: z.string().nullable(),
-  topic: z
-    .string()
-    .trim()
-    .refine(isValidTopicFilter, "Invalid MQTT topic filter"),
-  keys: z.array(z.string().min(1)),
-  tags: z.record(z.string().min(1), z.string()),
-});
-
-export const createSourceSchema = sourceFields.extend({
-  description: sourceFields.shape.description.optional(),
-  keys: sourceFields.shape.keys.default([]),
-  tags: sourceFields.shape.tags.default({}),
-});
-
-export const updateSourceSchema = sourceFields.partial();
 
 export const listSourcesQuerySchema = z.object({
   search: z.string().trim().optional(),

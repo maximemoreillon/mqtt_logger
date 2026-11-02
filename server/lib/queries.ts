@@ -40,6 +40,7 @@ export const getSource = async (id: string) => {
 
 export const createSource = async (values: NewSource) => {
   const [source] = await db.insert(sources).values(values).returning();
+  if (!source) throw new Error("Insert returned no row");
   return source;
 };
 

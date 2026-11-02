@@ -81,14 +81,4 @@ export const topicMatches = (filter: string, topic: string): boolean => {
   return f.length === t.length;
 };
 
-// Validates an MQTT topic filter (used for source creation / update).
-export const isValidTopicFilter = (filter: string): boolean => {
-  if (!filter || filter.length > 65535 || filter.includes("\u0000"))
-    return false;
-  const levels = filter.split("/");
-  return levels.every((level, i) => {
-    if (level === "#") return i === levels.length - 1;
-    if (level === "+") return true;
-    return !level.includes("#") && !level.includes("+");
-  });
-};
+export { isValidTopicFilter } from "../../shared/source";
