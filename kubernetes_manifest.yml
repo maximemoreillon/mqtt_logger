@@ -15,9 +15,6 @@ spec:
       containers:
         - name: ${APPLICATION_NAME}
           image: ${CONTAINER_IMAGE_TAGGED}
-          env:
-            - name: INFLUXDB_BUCKET
-              value: mqtt_logger
           envFrom:
             - secretRef:
                 name: environment-variables
@@ -35,6 +32,7 @@ spec:
     app: ${APPLICATION_NAME}
   ports:
     - port: 80
+      targetPort: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

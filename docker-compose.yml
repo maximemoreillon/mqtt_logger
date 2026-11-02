@@ -1,0 +1,45 @@
+# Development: docker compose up -d (Postgres only), set MQTT_URL in .env, npm run dev
+# Local broker: add --profile broker (then MQTT_URL=mqtt://localhost:1883)
+# Full stack:  docker compose --profile app up --build (MQTT_URL from .env, or --profile broker)
+services:
+  postgres:
+    # Plain PostgreSQL also works, e.g. postgres:18 (TIMESCALE=auto falls back)
+    image: timescale/timescaledb:latest-pg18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mqtt_logger
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mqtt_logger"]
+      interval: 5s
+      retries: 10
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    profiles: [broker]
+    volumes:
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - 1883:1883
+
+  mqtt-logger:
+    build: .
+    profiles: [app]
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/mqtt_logger
+      MQTT_URL: ${MQTT_URL:-mqtt://mosquitto:1883}
+      MQTT_USERNAME: ${MQTT_USERNAME:-}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-}
+      TIMESCALE_COMPRESS_AFTER: 7 days
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+
+volumes:
+  postgres-data:
