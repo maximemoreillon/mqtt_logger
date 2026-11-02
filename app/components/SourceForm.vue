@@ -70,7 +70,17 @@ const onSubmit = (event: FormSubmitEvent<z.output<typeof schema>>) => {
       name="keys"
       help="Payload fields to log, nested ones with dots (e.g. ENERGY.Power). Leave empty to log every numeric field."
     >
-      <UInputTags v-model="state.keys" placeholder="Add a field" class="w-full" />
+      <!-- Commit typed text on blur too: otherwise text not confirmed with
+           Enter is silently dropped when clicking Save -->
+      <UInputTags
+        v-model="state.keys"
+        placeholder="Add a field, then press Enter"
+        add-on-blur
+        add-on-tab
+        add-on-paste
+        delimiter=","
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField label="Tags" :error="tagsError">
