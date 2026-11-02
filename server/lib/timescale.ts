@@ -1,10 +1,10 @@
 import { pool } from "../db";
-import { config } from "./config";
+import type { TimescaleSettings } from "./config";
 
 // Runs at startup rather than as a migration so that TimescaleDB can be enabled
-// (or policies changed) on an existing database just by changing env vars.
-export const setupTimescale = async () => {
-  const mode = config.TIMESCALE;
+// (or policies changed) on an existing database just by changing settings.
+export const setupTimescale = async (settings: TimescaleSettings) => {
+  const { mode, compressAfter, retention } = settings;
   if (mode === "false") {
     console.log("[Timescale] Disabled");
     return;
@@ -23,11 +23,11 @@ export const setupTimescale = async () => {
          if_not_exists => TRUE, migrate_data => TRUE)`,
     );
 
-    // Env vars are the source of truth: drop existing policies, then re-add.
+    // Settings are the source of truth: drop existing policies, then re-add.
     await pool.query(
       "SELECT remove_compression_policy('points', if_exists => TRUE)",
     );
-    if (config.TIMESCALE_COMPRESS_AFTER) {
+    if (compressAfter) {
       await pool.query(
         `ALTER TABLE points SET (
            timescaledb.compress,
@@ -36,21 +36,21 @@ export const setupTimescale = async () => {
       );
       await pool.query(
         "SELECT add_compression_policy('points', $1::interval)",
-        [config.TIMESCALE_COMPRESS_AFTER],
+        [compressAfter],
       );
     }
 
     await pool.query(
       "SELECT remove_retention_policy('points', if_exists => TRUE)",
     );
-    if (config.TIMESCALE_RETENTION) {
+    if (retention) {
       await pool.query("SELECT add_retention_policy('points', $1::interval)", [
-        config.TIMESCALE_RETENTION,
+        retention,
       ]);
     }
 
     console.log(
-      `[Timescale] Enabled (compress after: ${config.TIMESCALE_COMPRESS_AFTER ?? "never"}, retention: ${config.TIMESCALE_RETENTION ?? "forever"})`,
+      `[Timescale] Enabled (compress after: ${compressAfter ?? "never"}, retention: ${retention ?? "forever"})`,
     );
   } catch (error) {
     if (mode === "true") throw error;

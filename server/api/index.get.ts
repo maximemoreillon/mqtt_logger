@@ -1,6 +1,5 @@
 import pkg from "../../package.json";
 import { pool } from "../db";
-import { config } from "../lib/config";
 import { mqttConnected } from "../lib/mqtt";
 import { startup } from "../lib/startup";
 
@@ -13,11 +12,11 @@ const databaseConnected = async () => {
   }
 };
 
-export default defineEventHandler(async () => ({
+export default defineEventHandler(async (event) => ({
   application_name: "MQTT Logger",
   version: pkg.version,
   ready: startup.ready,
   error: startup.error,
   database: { connected: await databaseConnected() },
-  mqtt: { url: config.MQTT_URL, connected: mqttConnected() },
+  mqtt: { url: useRuntimeConfig(event).mqtt.url, connected: mqttConnected() },
 }));

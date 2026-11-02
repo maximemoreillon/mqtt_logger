@@ -1,9 +1,9 @@
-# Development: docker compose up -d (Postgres only), set MQTT_URL in .env, npm run dev
-# Local broker: add --profile broker (then MQTT_URL=mqtt://localhost:1883)
-# Full stack:  docker compose --profile app up --build (MQTT_URL from .env, or --profile broker)
+# Development: docker compose up -d (Postgres only), set NUXT_MQTT_URL in .env, npm run dev
+# Local broker: add --profile broker (then NUXT_MQTT_URL=mqtt://localhost:1883)
+# Full stack:  docker compose --profile app up --build (NUXT_MQTT_URL from .env, or --profile broker)
 services:
   postgres:
-    # Plain PostgreSQL also works, e.g. postgres:18 (TIMESCALE=auto falls back)
+    # Plain PostgreSQL also works, e.g. postgres:18 (NUXT_TIMESCALE_MODE=auto falls back)
     image: timescale/timescaledb:latest-pg18
     environment:
       POSTGRES_USER: postgres
@@ -31,10 +31,16 @@ services:
     profiles: [app]
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/mqtt_logger
-      MQTT_URL: ${MQTT_URL:-mqtt://mosquitto:1883}
-      MQTT_USERNAME: ${MQTT_USERNAME:-}
-      MQTT_PASSWORD: ${MQTT_PASSWORD:-}
-      TIMESCALE_COMPRESS_AFTER: 7 days
+      NUXT_MQTT_URL: ${NUXT_MQTT_URL:-mqtt://mosquitto:1883}
+      NUXT_MQTT_USERNAME: ${NUXT_MQTT_USERNAME:-}
+      NUXT_MQTT_PASSWORD: ${NUXT_MQTT_PASSWORD:-}
+      NUXT_TIMESCALE_COMPRESS_AFTER: 7 days
+      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD:-}
+      NUXT_OAUTH_OIDC_CLIENT_ID: ${NUXT_OAUTH_OIDC_CLIENT_ID:-}
+      NUXT_OAUTH_OIDC_CLIENT_SECRET: ${NUXT_OAUTH_OIDC_CLIENT_SECRET:-}
+      NUXT_OAUTH_OIDC_OPENID_CONFIG: ${NUXT_OAUTH_OIDC_OPENID_CONFIG:-}
+      NUXT_OAUTH_OIDC_REDIRECT_URL: ${NUXT_OAUTH_OIDC_REDIRECT_URL:-}
+      NUXT_OIDC_AUDIENCE: ${NUXT_OIDC_AUDIENCE:-}
     depends_on:
       postgres:
         condition: service_healthy

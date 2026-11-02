@@ -4,15 +4,24 @@ import { points, sources, type NewSource } from "../db/schema";
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, "\\$&");
 
+// userId is undefined when auth is disabled: every source is then visible.
+type UserId = string | undefined;
+const ownedBy = (userId: UserId) =>
+  userId === undefined ? undefined : eq(sources.userId, userId);
+
 export const listSources = async (opts: {
+  userId: UserId;
   search?: string;
   limit: number;
   offset: number;
 }) => {
   const pattern = opts.search ? `%${escapeLike(opts.search)}%` : undefined;
-  const where = pattern
-    ? or(ilike(sources.name, pattern), ilike(sources.topic, pattern))
-    : undefined;
+  const where = and(
+    ownedBy(opts.userId),
+    pattern
+      ? or(ilike(sources.name, pattern), ilike(sources.topic, pattern))
+      : undefined,
+  );
 
   const [items, [totalRow]] = await Promise.all([
     db
@@ -33,8 +42,11 @@ export const listSources = async (opts: {
   };
 };
 
-export const getSource = async (id: string) => {
-  const [source] = await db.select().from(sources).where(eq(sources.id, id));
+export const getSource = async (id: string, userId: UserId) => {
+  const [source] = await db
+    .select()
+    .from(sources)
+    .where(and(eq(sources.id, id), ownedBy(userId)));
   return source;
 };
 
@@ -44,17 +56,28 @@ export const createSource = async (values: NewSource) => {
   return source;
 };
 
-export const updateSource = async (id: string, values: Partial<NewSource>) => {
+export const updateSource = async (
+  id: string,
+  userId: UserId,
+  values: Partial<NewSource>,
+) => {
   const [source] = await db
     .update(sources)
     .set(values)
-    .where(eq(sources.id, id))
+    .where(and(eq(sources.id, id), ownedBy(userId)))
     .returning();
   return source;
 };
 
-export const deleteSource = (id: string) =>
+export const deleteSource = (id: string, userId: UserId) =>
   db.transaction(async (tx) => {
+    // Check ownership (and lock the row) before deleting any point
+    const [owned] = await tx
+      .select({ id: sources.id })
+      .from(sources)
+      .where(and(eq(sources.id, id), ownedBy(userId)))
+      .for("update");
+    if (!owned) return undefined;
     // Explicit delete: cheaper than relying on the FK cascade on a big table
     await tx.delete(points).where(eq(points.sourceId, id));
     const [source] = await tx

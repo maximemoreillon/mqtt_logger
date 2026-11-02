@@ -4,7 +4,7 @@ import { createSourceSchema } from "../../lib/validation";
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, createSourceSchema.parse);
-  const source = await createSource(body);
+  const source = await createSource({ ...body, userId: event.context.user?.id });
   await reloadSources();
   setResponseStatus(event, 201);
   return source;

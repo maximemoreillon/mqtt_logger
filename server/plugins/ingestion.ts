@@ -1,4 +1,5 @@
 import { pool, runMigrations } from "../db";
+import { parseSettings } from "../lib/config";
 import { startMqtt, stopMqtt } from "../lib/mqtt";
 import { startup } from "../lib/startup";
 import { setupTimescale } from "../lib/timescale";
@@ -7,10 +8,12 @@ import { startWriter, stopWriter } from "../lib/writer";
 // Long-running ingestion: requires the node-server preset (not serverless).
 export default defineNitroPlugin((nitroApp) => {
   const start = async () => {
-    await runMigrations();
-    await setupTimescale();
+    // Invalid settings fail startup like any other error
+    const settings = parseSettings(useRuntimeConfig());
+    await runMigrations(settings.migrationsDir);
+    await setupTimescale(settings.timescale);
     startWriter();
-    await startMqtt();
+    await startMqtt(settings.mqtt);
     startup.ready = true;
   };
 

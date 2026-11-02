@@ -1,7 +1,7 @@
 import mqtt, { type MqttClient } from "mqtt";
 import { db } from "../db";
 import { sources as sourcesTable, type Source } from "../db/schema";
-import { config } from "./config";
+import type { MqttSettings } from "./config";
 import { extractValues, topicMatches } from "./ingest";
 import { enqueue } from "./writer";
 
@@ -9,15 +9,14 @@ import { enqueue } from "./writer";
 // (Postgres LISTEN/NOTIFY would make this instant if ever needed.)
 const RELOAD_INTERVAL_MS = 30_000;
 
+let settings: MqttSettings | null = null;
 let client: MqttClient | null = null;
 let sources: Pick<Source, "id" | "topic" | "keys">[] = [];
 const subscribed = new Set<string>();
 let reloadTimer: NodeJS.Timeout | null = null;
 
 const subscriptionTopic = (filter: string) =>
-  config.MQTT_SHARED_GROUP
-    ? `$share/${config.MQTT_SHARED_GROUP}/${filter}`
-    : filter;
+  settings?.sharedGroup ? `$share/${settings.sharedGroup}/${filter}` : filter;
 
 // Subscribes / unsubscribes so that exactly the topics of current sources are
 // subscribed. Several sources may share a topic.
@@ -69,20 +68,22 @@ const onMessage = (topic: string, payload: Buffer) => {
   }
 };
 
-export const startMqtt = async () => {
+export const startMqtt = async (mqttSettings: MqttSettings) => {
+  settings = mqttSettings;
+  const { url, username, password } = mqttSettings;
   await reloadSources();
 
-  console.log(`[MQTT] Connecting to ${config.MQTT_URL}...`);
-  client = mqtt.connect(config.MQTT_URL, {
-    username: config.MQTT_USERNAME,
-    password: config.MQTT_PASSWORD,
+  console.log(`[MQTT] Connecting to ${url}...`);
+  client = mqtt.connect(url, {
+    username,
+    password,
     reconnectPeriod: 5000,
     // Subscriptions are restored by syncSubscriptions() on connect
     resubscribe: false,
   });
 
   client.on("connect", () => {
-    console.log(`[MQTT] Connected to ${config.MQTT_URL}`);
+    console.log(`[MQTT] Connected to ${url}`);
     // On a fresh session the broker forgot our subscriptions
     subscribed.clear();
     syncSubscriptions();

@@ -5,7 +5,7 @@ import { discardSource } from "../../../lib/writer";
 
 export default defineEventHandler(async (event) => {
   const { id } = await getValidatedRouterParams(event, idParamsSchema.parse);
-  const source = await deleteSource(id);
+  const source = await deleteSource(id, event.context.user?.id);
   if (!source) throw createError({ statusCode: 404, statusMessage: "Source not found" });
   discardSource(id);
   await reloadSources();

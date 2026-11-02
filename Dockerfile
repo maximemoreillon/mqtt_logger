@@ -9,7 +9,7 @@ FROM node:24-slim
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000 \
-    MIGRATIONS_DIR=/app/migrations
+    NUXT_MIGRATIONS_DIR=/app/migrations
 COPY --from=build /app/.output ./.output
 COPY --from=build /app/server/db/migrations ./migrations
 USER node

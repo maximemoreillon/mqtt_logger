@@ -4,6 +4,7 @@
       <template #right>
         <StatusIndicator />
         <UColorModeButton />
+        <UserMenu />
       </template>
     </UHeader>
 
