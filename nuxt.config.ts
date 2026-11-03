@@ -5,7 +5,13 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "nuxt-auth-utils"],
   css: ["~/assets/css/main.css"],
   app: {
-    head: { title: "MQTT Logger" },
+    head: {
+      title: "MQTT Logger",
+      link: [
+        { rel: "icon", href: "/favicon.ico", sizes: "any" },
+        { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      ],
+    },
   },
   // Set at runtime by NUXT_* variables, e.g. mqtt.url <- NUXT_MQTT_URL.
   // Validated in server/lib/config.ts. DATABASE_URL is the exception: a plain
